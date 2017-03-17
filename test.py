@@ -1,17 +1,21 @@
 import rumps
+from lifxlan import *
 
-class AwesomeStatusBarApp(rumps.App):
-    @rumps.clicked("Preferences")
-    def prefs(self, _):
-        rumps.alert("jk! no preferences available!")
+lifx = LifxLAN()
+devices = lifx.get_lights()
 
-    @rumps.clicked("Silly button")
-    def onoff(self, sender):
-        sender.state = not sender.state
+class LifxController(rumps.App):
+    for i in range(0, len(devices)):
+        
+        @rumps.clicked("LIFX Bulb {0}".format(i))
+        def onoff(self, sender):
+            sender.state = not sender.state
 
-    @rumps.clicked("Say hi")
-    def sayhi(self, _):
-        rumps.notification("Awesome title", "amazing subtitle", "hi!!1")
+            bulbNumber = int(sender.title[-1])
+            if sender.state:
+                devices[bulbNumber].set_power("on")
+            else:
+                devices[bulbNumber].set_power("off")
 
 if __name__ == "__main__":
-    AwesomeStatusBarApp("Awesome App").run()
+    LifxController("LIFX Controller").run()
