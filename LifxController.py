@@ -29,4 +29,4 @@ class LifxController(rumps.App):
             sender.title = sender.title.replace(oldState, updatedState)
 
 if __name__ == '__main__':
-    LifxController('LifxController', None, 'icon.png').run()
+    LifxController('LifxController', None, 'images/icon.png').run()
