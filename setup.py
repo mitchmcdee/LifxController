@@ -7,9 +7,15 @@ Usage:
 
 from setuptools import setup
 
-APP = ['test.py']
+APP = ['LifxController.py']
 DATA_FILES = []
-OPTIONS = {}
+OPTIONS = {
+    'argv_emulation': True,
+    'plist': {
+        'LSUIElement': True,
+    },
+    'packages': ['rumps', 'lifxlan'],
+}
 
 setup(
     app=APP,
