@@ -2,30 +2,30 @@ from lifxlan import *
 import rumps
 import re
 
-# Discovers all the LIFX lights
-bulbs = {bulb.get_label(): bulb for bulb in LifxLAN().get_lights()}
+# Discovers all the LIFX lights and puts them in a dictionary with their labels.
+lights = {light.get_label(): light for light in LifxLAN().get_lights()}
 
 class LifxController(rumps.App):
-    # Loop through all accessible bulbs.
-    for name, bulb in bulbs.iteritems():
-        # Get the initial state of the bulb (on or off).
-        initialState = 'ON' if bulb.get_power() else 'OFF'
+    # Loop through all accessible lights.
+    for name, light in lights.iteritems():
+        # Get the initial state of the light (on or off).
+        initialState = 'ON' if light.get_power() else 'OFF'
 
-        # Add bulb as a menu item and toggle its power when clicked.
+        # Add light as a menu item and toggle its power when clicked.
         @rumps.clicked('{0} is {1}'.format(name, initialState))
         def toggle_power(self, sender):
             # Get identifying label
-            bulbLabel = re.search('(.*) is', sender.title).group(1)
+            lightLabel = re.search('(.*) is O', sender.title).group(1)
 
-            # Get bulb state
-            bulbState = 1 if re.search('ON', sender.title) else 0
+            # Get light state
+            lightState = 1 if re.search('ON', sender.title) else 0
 
-            # Toggle bulb power
-            bulbs[bulbLabel].set_power(not bulbState)
+            # Toggle light power
+            lights[lightLabel].set_power(not lightState)
 
             # Update text in the menu item title
-            oldState = 'ON' if bulbState else 'OFF'
-            updatedState = 'OFF' if bulbState else 'ON'
+            oldState = 'ON' if lightState else 'OFF'
+            updatedState = 'OFF' if lightState else 'ON'
             sender.title = sender.title.replace(oldState, updatedState)
 
 if __name__ == '__main__':
