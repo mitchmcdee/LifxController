@@ -2,6 +2,7 @@ import rumps
 from lifxlan import *
 
 lifx = LifxLAN()
+# Discovers all the LIFX lights
 devices = lifx.get_lights()
 
 # Toggles the power of a bulb given a state.
@@ -22,7 +23,7 @@ class LifxController(rumps.App):
             sender.state = not sender.state
 
             # Get bulb number (checks final char in menu item title)
-            # TODO(mitch): this won't support >9 bulbs
+            # TODO(mitch): this won't support >9 bulbs, quit hackin'
             bulbNumber = int(sender.title[-1])
 
             # Toggle the power to that bulb
