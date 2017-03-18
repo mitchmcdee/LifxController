@@ -14,8 +14,7 @@ OPTIONS = {
     'plist': {
         'LSUIElement': True,
     },
-    'packages': ['rumps'],
-    'includes': ['lazylights'],
+    'packages': ['rumps', 'lifxlan'],
 }
 
 setup(
