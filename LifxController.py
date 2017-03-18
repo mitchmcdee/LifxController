@@ -18,7 +18,7 @@ class LifxController(rumps.App):
             lightLabel = re.search('(.*) is O', sender.title).group(1)
 
             # Get light state
-            lightState = 1 if re.search('ON', sender.title) else 0
+            lightState = re.search('ON', sender.title) != None
 
             # Toggle light power
             lights[lightLabel].set_power(not lightState)
