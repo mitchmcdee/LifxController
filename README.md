@@ -5,9 +5,10 @@ A simple python app that turns your LIFX lights on and off from the OSX menu bar
 Currently supports:
   - [x] Automatic discovery and updating of lights
   - [x] Toggling power of individual lights
-  - [ ] Toggling brightness of individual lights
-  - [ ] Toggling colour of individual lights
+  - [ ] Controlling brightness of individual lights
+  - [ ] Controlling colour of individual lights
   - [ ] Toggling power of all lights
+  - [ ] Toggling power of light groups
 
 Packaged together as an OSX Application using py2app using the supplied setup.py file.
 
