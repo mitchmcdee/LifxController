@@ -8,9 +8,9 @@ Usage:
 from setuptools import setup
 
 APP = ['LifxController.py']
-DATA_FILES = ['images/icon.png']
+DATA_FILES = ['icon.png']
 OPTIONS = {
-    'iconfile': 'images/icon.icns',
+    'iconfile': 'icon.icns',
     'argv_emulation': True,
     'plist': {
         'LSUIElement': True,

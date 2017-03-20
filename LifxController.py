@@ -13,7 +13,7 @@ def updateActiveLights():
 
 # LIFX Controller class
 class LifxController(rumps.App):
-    
+
     # Toggle light power when clicked
     def toggle_power(self, sender):
         # Get the associated light for the menu item
@@ -61,4 +61,4 @@ if __name__ == '__main__':
     updateActiveLights()
 
     # Create LifxController menu and run it
-    LifxController('LifxController', None, 'images/icon.png').run()
+    LifxController('LifxController', None, 'icon.png').run()
