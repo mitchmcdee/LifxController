@@ -19,5 +19,5 @@ Packaged together as an OSX Application using py2app using the supplied setup.py
 
 # Download
 
-#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.2-alpha/LifxController.app.zip)!
+#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.3-beta/LifxController.app.zip)!
 All releases [here](https://github.com/mitchmcdee/LifxController/releases)
