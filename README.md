@@ -1,14 +1,15 @@
 # LifxController
 
-A simple python app that turns your LIFX lights on and off from the OSX menu bar.
+A python app that allows you to control your LIFX lights from the OSX menubar!
 
-Currently supports:
+Supports:
   - [x] Automatic discovery and updating of lights
   - [x] Toggling power of individual lights
-  - [ ] Controlling brightness of individual lights
-  - [ ] Controlling colour of individual lights
-  - [ ] Toggling power of all lights
-  - [ ] Toggling power of light groups
+  - [x] Controlling brightness of individual lights
+  - [x] Controlling colour of individual lights
+  - [ ] Controlling groups
+  
+Many changes to come, stay tuned!
 
 Packaged together as an OSX Application using py2app using the supplied setup.py file.
 
