@@ -7,7 +7,8 @@ Supports:
   - [x] Toggling power of individual lights
   - [x] Controlling brightness of individual lights
   - [x] Controlling colour of individual lights
-  - [ ] Controlling groups
+  - [x] Controlling groups
+  - [ ] Infrared support
   
 Many changes to come, stay tuned!
 
