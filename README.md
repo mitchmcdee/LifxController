@@ -9,7 +9,7 @@ Supports:
   - [x] Controlling colour of individual lights
   - [x] Controlling groups
   - [ ] Infrared support
-  
+
 Many changes to come, stay tuned!
 
 Packaged together as an OSX Application using py2app using the supplied setup.py file.
@@ -20,5 +20,5 @@ Packaged together as an OSX Application using py2app using the supplied setup.py
 
 # Download
 
-#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.3-beta/LifxController.app.zip)!
+#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.4-beta/LifxController.app.zip)!
 All releases [here](https://github.com/mitchmcdee/LifxController/releases)
