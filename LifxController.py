@@ -1,73 +1,117 @@
 from lifxlan import *
 import rumps
-import threading
-rumps.debug_mode(True)
 
-# Globally accessible dictionary holding LIFX light names and their LIFX objects
-lights = {}
+rumps.debug_mode(True)
 
 # LIFX Controller class
 class LifxController(rumps.App):
 
-    # Toggle light power when clicked
-    def togglePower(self, sender):
-        # Get the associated light for the menu item
-        light = lights[sender.title]
+    # Initialise the class
+    def __init__(self):
+        super(LifxController, self).__init__('LifxController', None, 'icon.png', True)
+
+        # Dictionary holding LIFX light names and their LIFX objects
+        self.lights = {}
+
+    # Will run when a power button has been clicked
+    def onPowerUpdate(self, sender):
+        # Get the associated LIFX object
+        light = self.lights[sender.name]
 
         # No light was found, soft fail
         if light is None:
             return
 
-        # Toggle state and power
+        # Update state and label, toggle power
         sender.state = not sender.state
-        light.set_power(sender.state)
+        sender.title = 'Power is ON' if sender.state else 'Power is OFF'
+        light.set_power(sender.state, 0, True)
 
-    def hi(self, value):
-        lights['McDee\'s Bedroom'].set_brightness(value)
-
+    # Will run when a slider has been updated
     def onSliderUpdate(self, sender):
-        thread = threading.Thread(target=self.hi, args=(sender.value(), ))
-        thread.daemon = True                            # Daemonize thread
-        thread.start()
-        
+        print(sender.name)
 
-    # Add light as a clickable menu item
-    def addLightToMenu(self, name):
-        menuItem = rumps.MenuItem(name, callback=self.togglePower)
-        menuItem.state = 0 # default light to display as off until updated
-        slider = rumps.SliderMenuItem('Testing', callback=self.onSliderUpdate)
-        self.menu.insert_before('Quit', menuItem)
-        self.menu.insert_before('Quit', slider)
+        # Get the associated menu and LIFX object
+        menu = self.menu.get(sender.name)
+        light = self.lights[sender.name]
 
-    # Updates the on/off state for a single LIFX light
-    def updateState(self, name, light):
-        # Get the associated menu item for the light
-        menuItem = self.menu.get(name)
-
-        # No menu item was found, soft fail
-        if menuItem is None:
+        # No menu item or light was found, soft fail
+        if menu is None or light is None:
             return
 
-        # Update the light's menu item state (light is on if power > 0)
-        menuItem.state = light.get_power() > 0
+        # Get all menu items
+        items = menu.items()
 
+        # Get all the current HSBK slider values
+        hue = items[3][1].value
+        saturation = items[5][1].value
+        brightness = items[7][1].value
+        kelvin = items[9][1].value
+
+        # Update colour
+        light.set_color([hue, saturation, brightness, kelvin], 0, True)
+
+    # Add light as a submenu with it's own controllable buttons/sliders
+    def addLightToMenu(self, name):
+        light = self.lights[name]
+
+        # No light was found, soft fail
+        if light is None:
+            return
+
+        # Get initial HSBK and power values
+        hue, saturation, brightness, kelvin = light.get_color()
+        power = 'ON' if light.get_power() else 'OFF'
+
+        # Create power button and colour sliders
+        powerButton = rumps.MenuItem('Power is ' + power, name=name, callback=self.onPowerUpdate)
+        brightnessSlider = rumps.SliderMenuItem('b_' + name, brightness, 0, 65535, self.onSliderUpdate, name)
+        hueSlider = rumps.SliderMenuItem('h_' + name, hue, 0, 65535, self.onSliderUpdate, name)
+        saturationSlider = rumps.SliderMenuItem('s_' + name, saturation, 0, 65535, self.onSliderUpdate, name)
+        kelvinSlider = rumps.SliderMenuItem('k_' + name, kelvin, 2500, 9000, self.onSliderUpdate, name)
+
+        self.menu.update({name: [
+                            powerButton,
+                            None,
+                            'Hue', hueSlider,
+                            'Saturation', saturationSlider,
+                            'Brightness', brightnessSlider,
+                            'Kelvin', kelvinSlider
+                        ]})
+
+    def updateState(self, name):
+        # Get the associated menu and LIFX object
+        menu = self.menu.get(name)
+        light = self.lights[name]
+
+        # No menu or light was found, soft fail
+        if menu is None or light is None:
+            return
+
+        # Get updated HSBK and power values
+        hue, saturation, brightness, kelvin = light.get_color()
+        power = 'ON' if light.get_power() else 'OFF'
+
+        # Update values
+        menu.items()[0][1].state = power == 'ON'
+        menu.items()[0][1].title = 'Power is ' + power
+        menu.items()[3][1].value = hue
+        menu.items()[5][1].value = saturation
+        menu.items()[7][1].value = brightness
+        menu.items()[9][1].value = kelvin
+        
     # Timer event that keeps the list of active lights up to date
-    @rumps.timer(20)
+    @rumps.timer(10)
     def updateActiveLights(self, _):
-        global lights
-        lights = {light.get_label(): light for light in LifxLAN().get_lights()}
+        self.lights = {light.get_label(): light for light in LifxLAN().get_lights()}
 
     # Timer event that updates the menu with the active light's and their states
-    @rumps.timer(20)
+    @rumps.timer(5)
     def updateAllStates(self, _):
-        # Loops through the active lights and updates their on off state. Also
-        # will add newly discovered lights to the menu
-        # TODO(mitch): redesign to use sub menus? icons? http://bit.ly/2nKCbNR
-        for name, light in lights.iteritems():
-            if name not in self.menu:
-                self.addLightToMenu(name)
-            self.updateState(name, light)
+        newLights = filter(lambda light: light not in self.menu, self.lights)
+        map(self.addLightToMenu, newLights)
+        map(self.updateState, self.lights)
 
 if __name__ == '__main__':
     # Create LifxController menu and run it
-    LifxController('LifxController', None, 'icon.png', True).run()
+    LifxController().run()
