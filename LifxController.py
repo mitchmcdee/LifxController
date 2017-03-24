@@ -66,6 +66,11 @@ class LifxController(rumps.App):
         else:
             light.set_color([h,s,b,k], 0, True)
 
+            # Get and set infrared value if supported
+            if light.get_infrared():
+                i = items[11][1].value
+                light.set_infrared(i)
+
 
     # Add new group light as a submenu with it's own controllable buttons/sliders
     def addGroupLight(self, name):
@@ -131,6 +136,12 @@ class LifxController(rumps.App):
         lightMenu.update([None, 'Hue', hueSlider, 'Saturation', saturationSlider,
                           'Brightness', brightnessSlider, 'Kelvin', kelvinSlider ])
 
+        # Create and add infrared slider if supported
+        if light.get_infrared():
+            i = light.get_infrared()
+            infraredSlider = rumps.SliderMenuItem('i_' + name, i, 0, 65535, self.onSliderUpdate, name)
+            lightMenu.update(['Infrared', infraredSlider])
+
         # Add light submenu to the individual light list menu (above seperator_2)
         self.menu.insert_before('separator_2', lightMenu)
 
@@ -177,6 +188,11 @@ class LifxController(rumps.App):
         menu.items()[7][1].value = brightness
         menu.items()[9][1].value = kelvin
 
+        # Update infrared value if supported
+        if light.get_infrared():
+            menu.items()[11][1].value = light.get_infrared()
+
+        # Update this light's group if it has one
         if light.get_group() in self.groups:
             self.updateGroup(light.get_group())
         
