@@ -161,9 +161,12 @@ class LifxController(rumps.App):
         powers = [self.lights.get(light).get_power() for light in group]
         power = 'ON' if 65535 in powers else 'OFF'
 
+        # Get all menu items
+        items = menu.items()
+
         # Update values
-        menu.items()[0][1].state = power == 'ON'
-        menu.items()[0][1].title = 'Power is ' + power
+        items[0][1].state = power == 'ON'
+        items[0][1].title = 'Power is ' + power
 
 
     # Update the state a LIFX light
@@ -180,17 +183,20 @@ class LifxController(rumps.App):
         hue, saturation, brightness, kelvin = light.get_color()
         power = 'ON' if light.get_power() else 'OFF'
 
+        # Get all menu items
+        items = menu.items()
+
         # Update values
-        menu.items()[0][1].state = power == 'ON'
-        menu.items()[0][1].title = 'Power is ' + power
-        menu.items()[3][1].value = hue
-        menu.items()[5][1].value = saturation
-        menu.items()[7][1].value = brightness
-        menu.items()[9][1].value = kelvin
+        items[0][1].state = power == 'ON'
+        items[0][1].title = 'Power is ' + power
+        items[3][1].value = hue
+        items[5][1].value = saturation
+        items[7][1].value = brightness
+        items[9][1].value = kelvin
 
         # Update infrared value if supported
         if light.get_infrared():
-            menu.items()[11][1].value = light.get_infrared()
+            items[11][1].value = light.get_infrared()
 
         # Update this light's group if it has one
         if light.get_group() in self.groups:
@@ -222,7 +228,7 @@ class LifxController(rumps.App):
     # Timer event that updates the menu with the active light's and their states
     @rumps.timer(5)
     def updateAllStates(self, _):
-        # Filter any new lights
+        # Filter any new lights or groups
         newLights = filter(lambda light: light not in self.menu, self.lights)
         newGroups = filter(lambda group: group not in self.menu, self.groups)
 
