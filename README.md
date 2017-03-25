@@ -4,11 +4,9 @@ A python app that allows you to control your LIFX lights from the OSX menubar!
 
 Supports:
   - [x] Automatic discovery and updating of lights
-  - [x] Toggling power of individual lights
-  - [x] Controlling brightness of individual lights
-  - [x] Controlling colour of individual lights
-  - [x] Controlling groups
-  - [ ] Infrared support
+  - [x] Controlling brightness and colours of individual lights
+  - [x] Controlling brightness and colours of groups
+  - [x] Infrared support
 
 Many changes to come, stay tuned!
 
