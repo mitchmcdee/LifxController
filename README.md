@@ -1,3 +1,8 @@
+# Download
+
+#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.4-beta/LifxController.app.zip)!
+All releases [here](https://github.com/mitchmcdee/LifxController/releases)
+
 # LifxController
 
 A python app that allows you to control your LIFX lights from the OSX menubar!
@@ -15,8 +20,3 @@ Packaged together as an OSX Application using py2app using the supplied setup.py
 # Screenshots
 
 ![menuDemo](menuDemo.png)
-
-# Download
-
-#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.4-beta/LifxController.app.zip)!
-All releases [here](https://github.com/mitchmcdee/LifxController/releases)
