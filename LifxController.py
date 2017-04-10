@@ -243,6 +243,7 @@ class LifxController(rumps.App):
             self.removeMenuItem(menuItem)
 
 
+    # Removes the menu item from the menu as well as any dictionaries it is in
     def removeMenuItem(self, menuItem):
         del self.menu[menuItem]
         if menuItem in self.lights:
