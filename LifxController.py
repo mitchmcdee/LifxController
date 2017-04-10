@@ -73,7 +73,7 @@ class LifxController(rumps.App):
 
 
     # Add new group light as a submenu with it's own controllable buttons/sliders
-    def addGroupLight(self, name):
+    def addGroup(self, name):
         # Get the associated group
         group = self.groups.get(name)
 
@@ -108,7 +108,7 @@ class LifxController(rumps.App):
 
 
     # Add new individual light as a submenu with it's own controllable buttons/sliders
-    def addIndividualLight(self, name):
+    def addIndividual(self, name):
         # Get the associated LIFX object
         light = self.lights.get(name)
 
@@ -156,8 +156,9 @@ class LifxController(rumps.App):
         if menu is None or group is None:
             return
 
-        # Note: We can't represent all light's updated HSBK values, but we can display
-        # the group power state by checking to see if at least one group light is ON
+        # Get updated HSBK (hue, saturation, brightness, kelvin) and power values
+        # Note: HSBK values are retrieved from first light in group as an estimate
+        h,s,b,k = self.lights.get(group[0]).get_color()
         powers = [self.lights.get(light).get_power() for light in group]
         power = 'ON' if 65535 in powers else 'OFF'
 
@@ -167,6 +168,10 @@ class LifxController(rumps.App):
         # Update values
         items[0][1].state = power == 'ON'
         items[0][1].title = 'Power is ' + power
+        items[3][1].value = h
+        items[5][1].value = s
+        items[7][1].value = b
+        items[9][1].value = k
 
 
     # Update the state a LIFX light
@@ -180,7 +185,7 @@ class LifxController(rumps.App):
             return
 
         # Get updated HSBK and power values
-        hue, saturation, brightness, kelvin = light.get_color()
+        h,s,b,k = light.get_color()
         power = 'ON' if light.get_power() else 'OFF'
 
         # Get all menu items
@@ -189,10 +194,10 @@ class LifxController(rumps.App):
         # Update values
         items[0][1].state = power == 'ON'
         items[0][1].title = 'Power is ' + power
-        items[3][1].value = hue
-        items[5][1].value = saturation
-        items[7][1].value = brightness
-        items[9][1].value = kelvin
+        items[3][1].value = h
+        items[5][1].value = s
+        items[7][1].value = b
+        items[9][1].value = k
 
         # Update infrared value if supported
         if light.get_infrared():
@@ -206,8 +211,11 @@ class LifxController(rumps.App):
     # Timer event that keeps the list of active lights up to date
     @rumps.timer(10)
     def updateActiveLights(self, _):
+        # Discovers all active LIFX lights on the network
+        lights = LifxLAN().get_lights()
+
         # Loop through the discovered lights
-        for light in LifxLAN().get_lights():
+        for light in lights:
             # Get light name and group if it has one
             name = light.get_label()
             group = light.get_group()
@@ -224,17 +232,35 @@ class LifxController(rumps.App):
                 if group and name not in self.groups.get(group):
                     self.groups.get(group).append(name)
 
+        # Remove any inactive lights and groups from the menu
+        activeLights = [light.get_label() for light in lights]
+        activeGroups = [light.get_group() for light in lights]
+        for menuItem in self.menu:
+            if menuItem not in self.lights and menuItem not in self.groups:
+                continue
+            if menuItem in activeLights or menuItem in activeGroups:
+                continue
+            self.removeMenuItem(menuItem)
+
+
+    def removeMenuItem(self, menuItem):
+        del self.menu[menuItem]
+        if menuItem in self.lights:
+            del self.lights[menuItem]
+        if menuItem in self.groups:
+            del self.groups[menuItem]
+
 
     # Timer event that updates the menu with the active light's and their states
-    @rumps.timer(5)
+    @rumps.timer(2)
     def updateAllStates(self, _):
-        # Filter any new lights or groups
-        newLights = filter(lambda light: light not in self.menu, self.lights)
-        newGroups = filter(lambda group: group not in self.menu, self.groups)
+        # Filter out any new lights or groups that aren't in the menu yet
+        newLights = filter(lambda l: l not in self.menu, self.lights)
+        newGroups = filter(lambda g: g not in self.menu, self.lights)
 
         # Add any new lights and groups to the menu
-        map(self.addIndividualLight, newLights)
-        map(self.addGroupLight, newGroups)
+        map(self.addIndividual, newLights)
+        map(self.addGroup, newGroups)
 
         # Update all updated light states
         map(self.updateState, self.lights)
