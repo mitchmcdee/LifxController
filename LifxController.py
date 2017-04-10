@@ -15,8 +15,14 @@ class LifxController(rumps.App):
         # Dictionary holding group names and the names of the lights in them
         self.groups = {}
 
-        # Create separators for individual lights, groups and the Quit button
-        self.menu.update(['Groups', None, 'Individual', None])
+        # Add initial menu items to the menu
+        refreshMenuItem = rumps.MenuItem('Refresh', callback=self.onRefresh)
+        self.menu.update(['Groups', None, 'Individual', None, refreshMenuItem])
+
+
+    # Will attempt to refresh the active lights
+    def onRefresh(self, sender):
+        self.updateActiveLights('')
 
 
     # Will run when a power button has been clicked
@@ -257,7 +263,7 @@ class LifxController(rumps.App):
     def updateAllStates(self, _):
         # Filter out any new lights or groups that aren't in the menu yet
         newLights = filter(lambda l: l not in self.menu, self.lights)
-        newGroups = filter(lambda g: g not in self.menu, self.lights)
+        newGroups = filter(lambda g: g not in self.menu, self.groups)
 
         # Add any new lights and groups to the menu
         map(self.addIndividual, newLights)
