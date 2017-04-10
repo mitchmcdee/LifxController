@@ -1,5 +1,6 @@
 from lifxlan import *
 import rumps
+from PIL import Image
 
 rumps.debug_mode(True)
 
@@ -22,10 +23,13 @@ class LifxController(rumps.App):
 
     # Will attempt to refresh the active lights
     def onRefresh(self, sender):
+        # Remove all lights and groups from the menu
         for menuItem in self.menu:
             if menuItem not in self.lights and menuItem not in self.groups:
                 continue
             self.removeMenuItem(menuItem)
+
+        # Rediscover lights and add them back to menu
         self.updateActiveLights('')
 
 
@@ -106,7 +110,7 @@ class LifxController(rumps.App):
         kelvinSlider = rumps.SliderMenuItem('k_' + name, k, 2500, 9000, self.onSliderUpdate, name)
 
         # Create light menu and first element (necessary to create submenu)
-        groupMenu = rumps.MenuItem(name)
+        groupMenu = rumps.MenuItem(name, icon=self.generateIcon(name, [h,s,b,k,power]))
         groupMenu.add(powerButton)
 
         # Add rest of submenu elements
@@ -139,7 +143,7 @@ class LifxController(rumps.App):
         kelvinSlider = rumps.SliderMenuItem('k_' + name, k, 2500, 9000, self.onSliderUpdate, name)
 
         # Create light menu and first element (necessary to create submenu)
-        lightMenu = rumps.MenuItem(name)
+        lightMenu = rumps.MenuItem(name, icon=self.generateIcon(name, [h,s,b,k,power]))
         lightMenu.add(powerButton)
 
         # Add rest of submenu elements
@@ -157,7 +161,7 @@ class LifxController(rumps.App):
 
 
     # Update the state of a group
-    def updateGroup(self, name):
+    def updateGroupState(self, name):
         # Get the associated menu and group
         menu = self.menu.get(name)
         group = self.groups.get(name)
@@ -183,9 +187,12 @@ class LifxController(rumps.App):
         items[7][1].value = b
         items[9][1].value = k
 
+        # Update menu colour icon
+        menu.set_icon(self.generateIcon(name, [h,s,b,k,power]))
+
 
     # Update the state a LIFX light
-    def updateState(self, name):
+    def updateIndividualState(self, name):
         # Get the associated menu and LIFX object
         menu = self.menu.get(name)
         light = self.lights.get(name)
@@ -215,7 +222,77 @@ class LifxController(rumps.App):
 
         # Update this light's group if it has one
         if light.get_group() in self.groups:
-            self.updateGroup(light.get_group())
+            self.updateGroupState(light.get_group())
+
+        # Update menu colour icon
+        menu.set_icon(self.generateIcon(name, [h,s,b,k,power]))
+
+
+    # Converts HSV values to RGB
+    def hsv_to_rgb(self, h, s, v):
+        if s == 0.0: return [v, v, v]
+        i = int(h*6.) # XXX assume int() truncates!
+        f = (h*6.)-i; p,q,t = v*(1.-s), v*(1.-s*f), v*(1.-s*(1.-f)); i%=6
+        if i == 0: return [v, t, p]
+        if i == 1: return [q, v, p]
+        if i == 2: return [p, v, t]
+        if i == 3: return [p, q, v]
+        if i == 4: return [t, p, v]
+        if i == 5: return [v, p, q]
+
+
+    # Translates a range onto another range
+    def translateRange(self, value, leftMin, leftMax, rightMin, rightMax):
+        # Figure out how 'wide' each range is
+        leftSpan = leftMax - leftMin
+        rightSpan = rightMax - rightMin
+
+        # Convert the left range into a 0-1 range ( float)
+        valueScaled = float(value - leftMin) / float(leftSpan)
+
+        # Convert the 0-1 range into a value in the right range.
+        return rightMin + (valueScaled * rightSpan)
+
+
+    # Returns a coloured LIFX bulb icon based off of the given colour values
+    def generateIcon(self, name, colourValues):
+        h,s,b,k,power = colourValues
+
+        # Open template image
+        icon = Image.open('menuIconTemplate.png')
+        icon = icon.convert('RGBA')
+        image = icon.getdata()
+
+        # If powered on, set colours, else, set to black to show power off
+        if power == 'ON':
+            # Map to correct HSV ranges
+            h = self.translateRange(h, 0, 65535, 0, 1)
+            s = self.translateRange(s, 0, 65535, 0, 1)
+            b = self.translateRange(b, 0, 65535, 0, 1)
+
+            # Convert HSV to RGB
+            colour = self.hsv_to_rgb(h,s,b)
+
+            # Map to correct RGB ranges
+            r = int(self.translateRange(colour[0], 0, 1, 0, 255))
+            g = int(self.translateRange(colour[1], 0, 1, 0, 255))
+            b = int(self.translateRange(colour[2], 0, 1, 0, 255))
+
+        else:
+            r,g,b = 0,0,0
+
+        # Create new image by replacing white pixels with the correct colour
+        newImage = []
+        for pixel in image:
+            if pixel[0] == 255 and pixel[1] == 255 and pixel[2] == 255:
+                newImage.append((r,g,b, 255))
+            else:
+                newImage.append(pixel)
+
+        # Save image and return the result
+        icon.putdata(newImage)
+        icon.save(name + '.png', 'PNG')
+        return name + '.png'
         
 
     # Timer event that keeps the list of active lights up to date
@@ -274,7 +351,7 @@ class LifxController(rumps.App):
         map(self.addGroup, newGroups)
 
         # Update all updated light states
-        map(self.updateState, self.lights)
+        map(self.updateIndividualState, self.lights)
 
 
 if __name__ == '__main__':
