@@ -22,6 +22,10 @@ class LifxController(rumps.App):
 
     # Will attempt to refresh the active lights
     def onRefresh(self, sender):
+        for menuItem in self.menu:
+            if menuItem not in self.lights and menuItem not in self.groups:
+                continue
+            self.removeMenuItem(menuItem)
         self.updateActiveLights('')
 
 
