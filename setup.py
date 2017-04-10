@@ -15,7 +15,7 @@ OPTIONS = {
     'plist': {
         'LSUIElement': True,
     },
-    'packages': ['rumps', 'lifxlan', 'Pillow'],
+    'packages': ['rumps', 'lifxlan', 'PIL'],
 }
 
 setup(
