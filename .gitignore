@@ -1,2 +1,6 @@
 build/
 dist/
+*.png
+!menuDemo.png
+!icon.png
+!menuIconTemplate.png
