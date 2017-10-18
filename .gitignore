@@ -4,3 +4,5 @@ dist/
 !menuDemo.png
 !icon.png
 !menuIconTemplate.png
+.idea/
+.eggs/
