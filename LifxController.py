@@ -177,13 +177,13 @@ class LifxController(rumps.App):
         items = dict(menu.items())
 
         # Update values
-        powerMenuItem = items['Power is ON'] or items['Power is OFF']
+        powerMenuItem = items.get('Power is ON') if 'Power is ON' in items else items.get('Power is OFF')
         powerMenuItem.state = p == 'ON'
         powerMenuItem.title = 'Power is ' + p
-        items['h_' + sender.name].value = h
-        items['s_' + sender.name].value = s
-        items['b_' + sender.name].value = b
-        items['k_' + sender.name].value = k
+        items['h_' + name].value = h
+        items['s_' + name].value = s
+        items['b_' + name].value = b
+        items['k_' + name].value = k
 
         # Update infrared value if supported
         if light.get_infrared():
@@ -216,7 +216,7 @@ class LifxController(rumps.App):
 
         # Update group values
         h, s, b, k = colourValues
-        powerMenuItem = items['Power is ON'] or items['Power is OFF']
+        powerMenuItem = items.get('Power is ON') if 'Power is ON' in items else items.get('Power is OFF')
         powerMenuItem.state = p == 'ON'
         powerMenuItem.title = 'Power is ' + p
         items['h_' + name].value = h
@@ -299,7 +299,6 @@ class LifxController(rumps.App):
         # Discovers all active LIFX lights on the network
         lights = LifxLAN().get_lights()
 
-        print(len(self.lights))
         # Loop through the discovered lights
         for light in lights:
             # Get light name and group if it has one
@@ -318,8 +317,6 @@ class LifxController(rumps.App):
                 if group is not None and name not in self.groups[group]:
                     self.groups[group].append(name)
 
-        print(len(lights), len(self.lights))
-
         # Remove any inactive lights and groups from the menu
         activeLights = [light.get_label() for light in lights]
         activeGroups = [light.get_group() for light in lights]
@@ -332,6 +329,7 @@ class LifxController(rumps.App):
 
     # Removes the menu item from the menu as well as any dictionaries it is in
     def removeMenuItem(self, menuItem):
+        print('Removing', menuItem)
         del self.menu[menuItem]
         if menuItem in self.lights:
             del self.lights[menuItem]
@@ -344,8 +342,6 @@ class LifxController(rumps.App):
         # Filter out any new lights or groups that aren't in the menu yet
         newLights = [l for l in self.lights if l not in self.menu]
         newGroups = [g for g in self.groups if g not in self.menu]
-
-        print(newLights, newGroups)
 
         # Add any new lights and groups to the menu
         [self.addIndividual(l) for l in newLights]
