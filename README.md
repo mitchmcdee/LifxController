@@ -1,6 +1,6 @@
 # Download
 
-#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.4-beta/LifxController.app.zip)!
+#### Latest release [HERE](https://github.com/mitchmcdee/LifxController/releases/download/v0.5-beta/LifxController.zip)!
 
 # LifxController
 
