@@ -12,8 +12,8 @@ class LifxController(rumps.App):
         super(LifxController, self).__init__('LifxController', None, 'icon.png', True)
         self.reset()
 
+    # Reset menu, lights and groups
     def reset(self):
-        # Clear menu, lights and groups
         self.menu.clear()
         self.lights = {} # Dictionary mapping LIFX light names to their LIFX objects
         self.groups = {} # Dictionary mapping group names to the names of the lights in them
